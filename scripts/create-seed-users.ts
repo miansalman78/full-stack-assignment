@@ -18,6 +18,9 @@
  * Or use: npm run docker:seed
  */
 
+if (typeof (globalThis as any).WebSocket === 'undefined') {
+  (globalThis as any).WebSocket = class {};
+}
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -398,7 +401,7 @@ async function loadSeedData(supabase: SupabaseClient) {
         'Mid-market investment and wealth management firm undergoing a full digital transformation',
       service_tier: 'enterprise',
       account_manager_id: '11111111-1111-1111-1111-000000000003',
-      status: 'active',
+      status: 'in_progress',
     },
     {
       id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
@@ -407,7 +410,7 @@ async function loadSeedData(supabase: SupabaseClient) {
         'Series B health-tech startup building patient engagement and telehealth software',
       service_tier: 'premium',
       account_manager_id: '11111111-1111-1111-1111-000000000003',
-      status: 'active',
+      status: 'in_progress',
     },
     {
       id: 'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
@@ -415,7 +418,7 @@ async function loadSeedData(supabase: SupabaseClient) {
       description: 'Family-owned artisan bakery chain with 6 locations expanding into e-commerce',
       service_tier: 'basic',
       account_manager_id: '11111111-1111-1111-1111-000000000004',
-      status: 'active',
+      status: 'in_progress',
     },
   ]);
 
