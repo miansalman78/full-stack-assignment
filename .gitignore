@@ -28,7 +28,6 @@ backend/dist/
 # =============================================================
 # ENVIRONMENT & SECRETS  (never commit real credentials)
 # =============================================================
-.env.local
 .env.*.local
 backend/.env
 supabase/.env
@@ -96,7 +95,6 @@ ehthumbs.db
 *.swo
 .idea/
 *.sublime-*
-.vscode/
 *.cursor
 
 # =============================================================
@@ -139,3 +137,4 @@ performance-test.js
 .claude/
 .claude.json
 .codacy/
+config.bat

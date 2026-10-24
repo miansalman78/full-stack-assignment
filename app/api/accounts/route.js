@@ -126,7 +126,9 @@ async function POST(request) {
         description: validation.data.description || null,
         primary_contact_name: validation.data.primary_contact_name || null,
         primary_contact_email: validation.data.primary_contact_email || null,
-        status: validation.data.status || 'active',
+        status: ['planning', 'in_progress', 'review', 'complete', 'on_hold'].includes(validation.data.status)
+          ? validation.data.status
+          : 'in_progress',
         account_manager_id: validation.data.account_manager_id || user.id,
         created_at: new Date().toISOString(),
       })

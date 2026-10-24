@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "arqam-butt",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "arqam-butt": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "arqam-butt",
+    "origin"
+  ]
+}

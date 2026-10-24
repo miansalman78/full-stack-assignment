@@ -27,6 +27,10 @@ import {
   ExternalLink,
   Move,
   Edit,
+  Home,
+  ChevronRight,
+  ArrowLeft,
+  Receipt,
 } from 'lucide-react';
 import {
   AccountWithProjects,
@@ -59,6 +63,7 @@ import {
 } from '@/components/ui/dialog';
 import { AccountEditDialog } from '@/components/account-edit-dialog';
 import { apiFetch } from '@/lib/api-config';
+import { EstimatesSection } from '@/components/estimates/estimates-section';
 
 interface AccountOverviewProps {
   account: AccountWithProjects;
@@ -67,6 +72,18 @@ interface AccountOverviewProps {
   userProfile: UserWithRoles;
   hasFullAccess?: boolean; // If false, user has read-only access (project stakeholder only)
 }
+
+interface KanbanColumn {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+}
+
+const accountKanbanConfigService = {
+  getStatusForKanbanColumn: (id: string, _cols: KanbanColumn[]) => id,
+  getKanbanColumnForStatus: (status: string, _cols: KanbanColumn[]) => status,
+};
 
 // Default kanban columns - will be overridden by account-specific config
 const DEFAULT_KANBAN_COLUMNS: KanbanColumn[] = [
@@ -570,12 +587,35 @@ export function AccountOverview({
     <div className="bg-background min-h-screen">
       {/* Header - Responsive */}
       <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
-        <div className="px-4 py-6 sm:px-6 sm:py-8">
-          <div className="space-y-6">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-3">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <h1 className="text-foreground text-4xl font-bold">{(account as any).name}</h1>
+        <div className="px-4 py-5 sm:px-6 sm:py-6">
+          <div className="space-y-4">
+            {/* Breadcrumb & Back Navigation */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <Link href="/dashboard" className="hover:text-foreground transition-colors flex items-center gap-1">
+                  <Home className="h-3.5 w-3.5" />
+                  <span>Home</span>
+                </Link>
+                <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                <Link href="/accounts" className="hover:text-foreground transition-colors">
+                  Accounts
+                </Link>
+                <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                <span className="text-foreground font-medium truncate max-w-[220px]">{(account as any).name}</span>
+              </nav>
+
+              <Link href="/accounts">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs sm:text-sm text-muted-foreground hover:text-foreground h-8">
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>Back to Accounts</span>
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-2">
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                  <h1 className="text-foreground text-3xl sm:text-4xl font-bold tracking-tight">{(account as any).name}</h1>
                   <Badge
                     variant={(account as any).status === 'active' ? 'default' : 'secondary'}
                     className="w-fit text-xs whitespace-nowrap"
@@ -584,11 +624,17 @@ export function AccountOverview({
                     {(account as any).status}
                   </Badge>
                 </div>
-                <p className="text-muted-foreground text-lg leading-relaxed">
+                <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
                   {(account as any).description || 'No description provided'}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-3">
+              <div className="flex shrink-0 items-center gap-2.5">
+                <Link href={`/accounts/${(account as any).id}/estimates`}>
+                  <Button variant="secondary" size="sm" className="flex items-center gap-1.5 font-medium">
+                    <Receipt className="h-4 w-4 text-primary" />
+                    <span>Estimates</span>
+                  </Button>
+                </Link>
                 {canEditAccount && (
                   <AccountEditDialog
                     account={account}
@@ -653,6 +699,13 @@ export function AccountOverview({
             />
           </CardContent>
         </Card>
+
+        {/* Estimates & Revenue Card */}
+        <EstimatesSection
+          accountId={accountId}
+          userProfile={userProfile}
+          projects={projects.map((p: any) => ({ id: p.id, name: p.name }))}
+        />
 
         {/* 2. Active Issues & Roadblocks Card */}
         <Card>

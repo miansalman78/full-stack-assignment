@@ -94,6 +94,14 @@ export enum Permission {
   // ========================================
   MANAGE_CLIENT_INVITES = 'manage_client_invites', // Manage client invitations (admin/account manager permission)
   // Note: Client access and approval permissions are now hardcoded based on is_client flag
+
+  // ========================================
+  // REVENUE & BILLING (ESTIMATES) PERMISSIONS
+  // ========================================
+  ESTIMATES_READ = 'estimates.read', // View estimates within account scope
+  ESTIMATES_CREATE = 'estimates.create', // Create new estimate drafts within account scope
+  ESTIMATES_UPDATE = 'estimates.update', // Edit estimate drafts within account scope
+  ESTIMATES_SEND = 'estimates.send', // Send estimates to clients / transition state
 }
 
 // Human-readable permission definitions
@@ -347,6 +355,30 @@ export const PermissionDefinitions: Record<
       'Send client invitations and view client feedback (admin/account manager permission)',
     category: 'Client Portal',
   },
+
+  // ========================================
+  // REVENUE & BILLING (ESTIMATES) PERMISSIONS
+  // ========================================
+  [Permission.ESTIMATES_READ]: {
+    name: 'View Estimates',
+    description: 'View estimates and financial line items within assigned accounts',
+    category: 'Revenue & Billing',
+  },
+  [Permission.ESTIMATES_CREATE]: {
+    name: 'Create Estimates',
+    description: 'Create new estimate drafts with line items within assigned accounts',
+    category: 'Revenue & Billing',
+  },
+  [Permission.ESTIMATES_UPDATE]: {
+    name: 'Update Estimates',
+    description: 'Edit draft estimates and line items within assigned accounts',
+    category: 'Revenue & Billing',
+  },
+  [Permission.ESTIMATES_SEND]: {
+    name: 'Send Estimates',
+    description: 'Send estimates to clients and manage acceptance/rejection lifecycle',
+    category: 'Revenue & Billing',
+  },
 };
 
 // Permission categories for UI grouping (excludes deprecated permissions)
@@ -378,6 +410,9 @@ export const PermissionCategories = {
   ),
   'Client Portal': Object.values(Permission).filter(
     (p: Permission) => (PermissionDefinitions as any)[p as string]?.category === 'Client Portal',
+  ),
+  'Revenue & Billing': Object.values(Permission).filter(
+    (p: Permission) => (PermissionDefinitions as any)[p as string]?.category === 'Revenue & Billing',
   ),
 };
 
