@@ -74,7 +74,7 @@ export const createAccountSchema = z.object({
   description: z.string().max(2000, 'Description too long').optional().nullable(),
   primary_contact_name: z.string().max(200, 'Contact name too long').optional().nullable(),
   primary_contact_email: emailSchema.optional().nullable(),
-  status: z.enum(['active', 'inactive', 'archived']).optional(),
+  status: z.enum(['active', 'inactive', 'archived', 'planning', 'in_progress', 'review', 'complete', 'on_hold']).optional(),
   account_manager_id: optionalUuidSchema.optional(),
 });
 
@@ -83,7 +83,7 @@ export const updateAccountSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   primary_contact_name: z.string().max(200).optional().nullable(),
   primary_contact_email: emailSchema.optional().nullable(),
-  status: z.enum(['active', 'inactive', 'archived']).optional(),
+  status: z.enum(['active', 'inactive', 'archived', 'planning', 'in_progress', 'review', 'complete', 'on_hold']).optional(),
   account_manager_id: optionalUuidSchema.optional(),
 });
 
@@ -485,3 +485,48 @@ export type SubmitFormResponseInput = z.infer<typeof submitFormResponseSchema>;
 export type SendClientInvitationInput = z.infer<typeof sendClientInvitationSchema>;
 export type AcceptClientInvitationInput = z.infer<typeof acceptClientInvitationSchema>;
 export type SubmitClientFeedbackInput = z.infer<typeof submitClientFeedbackSchema>;
+
+// ============================================================================
+// ESTIMATES (REVENUE & BILLING) SCHEMAS
+// ============================================================================
+
+export const estimateLineItemInputSchema = z.object({
+  description: z.string().min(1, 'Line item description is required').max(500, 'Description too long'),
+  quantity: z.number().positive('Quantity must be greater than 0'),
+  unit_price_minor: z.number().int('Unit price must be in integer minor units (cents)').nonnegative('Unit price cannot be negative'),
+});
+
+export const createEstimateSchema = z.object({
+  title: z.string().min(1, 'Estimate title is required').max(200, 'Title too long'),
+  project_id: optionalUuidSchema,
+  currency: z.string().min(3).max(3).optional().default('USD'),
+  valid_until: dateOnlySchema.optional().nullable(),
+  notes: z.string().max(3000, 'Notes too long').optional().nullable(),
+  terms: z.string().max(3000, 'Terms too long').optional().nullable(),
+  discount_rate_basis_points: z.number().int().min(0).max(10000, 'Discount basis points must be between 0 and 10000').optional().default(0),
+  tax_rate_basis_points: z.number().int().min(0).max(10000, 'Tax basis points must be between 0 and 10000').optional().default(0),
+  line_items: z.array(estimateLineItemInputSchema).min(1, 'At least one line item is required'),
+  idempotency_key: z.string().max(255).optional().nullable(),
+});
+
+export const updateEstimateSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  project_id: optionalUuidSchema,
+  currency: z.string().min(3).max(3).optional(),
+  valid_until: dateOnlySchema.optional().nullable(),
+  notes: z.string().max(3000).optional().nullable(),
+  terms: z.string().max(3000).optional().nullable(),
+  discount_rate_basis_points: z.number().int().min(0).max(10000).optional(),
+  tax_rate_basis_points: z.number().int().min(0).max(10000).optional(),
+  line_items: z.array(estimateLineItemInputSchema).min(1).optional(),
+});
+
+export const transitionEstimateStatusSchema = z.object({
+  status: z.enum(['draft', 'sent', 'accepted', 'rejected']),
+  rejection_reason: z.string().max(1000).optional().nullable(),
+});
+
+export type EstimateLineItemInput = z.infer<typeof estimateLineItemInputSchema>;
+export type CreateEstimateBody = z.infer<typeof createEstimateSchema>;
+export type UpdateEstimateBody = z.infer<typeof updateEstimateSchema>;
+export type TransitionEstimateStatusBody = z.infer<typeof transitionEstimateStatusSchema>;
