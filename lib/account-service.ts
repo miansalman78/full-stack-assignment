@@ -122,7 +122,7 @@ class AccountService {
         .select(
           `
           *,
-          user_profiles(*)
+          user_profiles!account_manager_id(*)
         `,
         )
         .eq('id', accountId)

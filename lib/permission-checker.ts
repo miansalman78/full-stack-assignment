@@ -220,6 +220,17 @@ export async function hasAccountAccess(
     return true;
   }
 
+  // Check if user is a client assigned to this account
+  const { data: userProfileData } = await supabase
+    .from('user_profiles')
+    .select('client_account_id, is_client')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (userProfileData && userProfileData.client_account_id === accountId) {
+    return true;
+  }
+
   const projectIds = await getAccountProjects(accountId, supabase);
 
   if (projectIds.length === 0) return false;
@@ -512,8 +523,9 @@ export async function checkPermissionHybrid(
       // MANAGE_DEPARTMENTS has no override — requires base permission + context
       // (VIEW_ALL_DEPARTMENTS should NOT grant manage privileges)
 
-      // Accounts
+      // Accounts & Estimates
       [Permission.VIEW_ACCOUNTS]: [Permission.VIEW_ALL_ACCOUNTS],
+      [Permission.ESTIMATES_READ]: [Permission.VIEW_ALL_ACCOUNTS],
       // MANAGE_ACCOUNTS has no override — requires base permission + context
       // (VIEW_ALL_ACCOUNTS should NOT grant manage privileges)
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, Building2, Calendar, ArrowRight, Mail } from 'lucide-react';
+import { Users, Building2, Calendar, ArrowRight, Mail, Receipt } from 'lucide-react';
 import { Account } from '@/lib/account-service';
 import { UserWithRoles, isSuperadmin, hasPermission } from '@/lib/rbac';
 import { Permission } from '@/lib/permissions';
@@ -51,14 +51,37 @@ export function AccountList({ accounts, userProfile, onAccountCreated }: Account
       account.description?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case 'in_progress':
+        return 'In Progress';
+      case 'active':
+        return 'Active';
+      case 'planning':
+        return 'Planning';
+      case 'complete':
+        return 'Complete';
+      case 'review':
+        return 'Review';
+      case 'on_hold':
+        return 'On Hold';
+      default:
+        return status;
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-emerald-400';
-      case 'inactive':
-        return 'bg-muted text-foreground';
+      case 'complete':
+        return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      case 'in_progress':
+        return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+      case 'planning':
+        return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
       case 'suspended':
-        return 'bg-red-100 text-destructive';
+      case 'on_hold':
+        return 'bg-red-500/10 text-destructive border border-red-500/20';
       default:
         return 'bg-muted text-foreground';
     }
@@ -134,71 +157,94 @@ export function AccountList({ accounts, userProfile, onAccountCreated }: Account
       {/* Accounts Grid - Responsive */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {filteredAccounts.map((account: any) => (
-          <Card key={account.id} className="h-full transition-shadow hover:shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-3">
+          <Card
+            key={account.id}
+            className="h-full flex flex-col justify-between overflow-hidden border border-border/70 bg-[var(--surface-2)] transition-all duration-200 hover:border-primary/40 hover:shadow-lg min-w-0"
+          >
+            <CardHeader className="pb-3 space-y-0">
+              <div className="flex items-start justify-between gap-2.5">
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="text-foreground truncate text-lg font-bold">
+                  <CardTitle
+                    className="text-foreground truncate text-base font-bold sm:text-lg"
+                    title={account.name}
+                  >
                     {account.name}
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                  <CardDescription className="text-muted-foreground mt-1 line-clamp-2 text-xs sm:text-sm">
                     {account.description || 'No description provided'}
                   </CardDescription>
                 </div>
                 <Badge
-                  className={`${getStatusColor(account.status)} shrink-0 text-xs whitespace-nowrap`}
+                  className={`${getStatusColor(account.status)} shrink-0 text-[11px] font-medium whitespace-nowrap px-2 py-0.5 rounded-full`}
                 >
-                  {account.status}
+                  {formatStatus(account.status)}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Contact Information */}
-              {account.primary_contact_name && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Users className="text-muted-foreground h-4 w-4" />
-                    <span className="text-muted-foreground text-sm font-medium">
-                      Primary Contact
-                    </span>
+            <CardContent className="flex flex-1 flex-col justify-between space-y-4 pt-1">
+              <div className="space-y-3">
+                {/* Contact Information */}
+                {account.primary_contact_name && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                      <Users className="h-3.5 w-3.5 shrink-0" />
+                      <span>Primary Contact</span>
+                    </div>
+                    <div className="pl-5">
+                      <p className="text-foreground text-xs sm:text-sm font-medium truncate">
+                        {account.primary_contact_name}
+                      </p>
+                      {account.primary_contact_email && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Mail className="text-muted-foreground h-3 w-3 shrink-0" />
+                          <span className="text-muted-foreground text-[11px] truncate">
+                            {account.primary_contact_email}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="ml-6 space-y-1">
-                    <p className="text-foreground text-sm font-medium">
-                      {account.primary_contact_name}
-                    </p>
-                    {account.primary_contact_email && (
-                      <div className="flex items-center gap-1">
-                        <Mail className="text-muted-foreground h-3 w-3" />
-                        <span className="text-muted-foreground text-xs break-all">
-                          {account.primary_contact_email}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* Created Date */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="text-muted-foreground h-4 w-4" />
-                  <span className="text-muted-foreground text-sm font-medium">Created</span>
-                </div>
-                <div className="ml-6">
-                  <p className="text-muted-foreground text-xs">
-                    {format(new Date(account.created_at), 'MMM dd, yyyy')}
-                  </p>
+                {/* Created Date */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                    <Calendar className="h-3.5 w-3.5 shrink-0" />
+                    <span>Created</span>
+                  </div>
+                  <div className="pl-5">
+                    <p className="text-muted-foreground text-xs">
+                      {format(new Date(account.created_at), 'MMM dd, yyyy')}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Action Button */}
-              <div className="border-t pt-4">
-                <Link href={`/accounts/${account.id}`}>
-                  <Button variant="outline" className="w-full">
-                    View Details
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+              {/* Action Buttons */}
+              <div className="border-t border-border/60 pt-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href={`/accounts/${account.id}`} className="min-w-0 w-full block">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-center gap-1 px-2 text-xs font-medium hover:bg-muted/80 h-9"
+                    >
+                      <span className="truncate">View Details</span>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                    </Button>
+                  </Link>
+                  <Link href={`/accounts/${account.id}/estimates`} className="min-w-0 w-full block">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full justify-center gap-1 px-2 text-xs font-medium hover:bg-secondary/80 h-9 text-foreground"
+                      title="Revenue & Billing Estimates"
+                    >
+                      <Receipt className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="truncate">Estimates</span>
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

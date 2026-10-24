@@ -584,6 +584,127 @@ export interface Database {
           updated_at?: string;
         };
       };
+      estimates: {
+        Row: {
+          id: string;
+          account_id: string;
+          project_id: string | null;
+          estimate_number: string;
+          title: string;
+          status: 'draft' | 'sent' | 'accepted' | 'rejected';
+          currency: string;
+          subtotal_minor: number;
+          discount_rate_basis_points: number;
+          discount_minor: number;
+          tax_rate_basis_points: number;
+          tax_minor: number;
+          total_minor: number;
+          notes: string | null;
+          terms: string | null;
+          valid_until: string | null;
+          sent_at: string | null;
+          accepted_at: string | null;
+          rejected_at: string | null;
+          rejection_reason: string | null;
+          created_by: string | null;
+          idempotency_key: string | null;
+          deleted_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          account_id: string;
+          project_id?: string | null;
+          estimate_number: string;
+          title: string;
+          status?: 'draft' | 'sent' | 'accepted' | 'rejected';
+          currency?: string;
+          subtotal_minor?: number;
+          discount_rate_basis_points?: number;
+          discount_minor?: number;
+          tax_rate_basis_points?: number;
+          tax_minor?: number;
+          total_minor?: number;
+          notes?: string | null;
+          terms?: string | null;
+          valid_until?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          rejected_at?: string | null;
+          rejection_reason?: string | null;
+          created_by?: string | null;
+          idempotency_key?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          account_id?: string;
+          project_id?: string | null;
+          estimate_number?: string;
+          title?: string;
+          status?: 'draft' | 'sent' | 'accepted' | 'rejected';
+          currency?: string;
+          subtotal_minor?: number;
+          discount_rate_basis_points?: number;
+          discount_minor?: number;
+          tax_rate_basis_points?: number;
+          tax_minor?: number;
+          total_minor?: number;
+          notes?: string | null;
+          terms?: string | null;
+          valid_until?: string | null;
+          sent_at?: string | null;
+          accepted_at?: string | null;
+          rejected_at?: string | null;
+          rejection_reason?: string | null;
+          created_by?: string | null;
+          idempotency_key?: string | null;
+          deleted_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      estimate_line_items: {
+        Row: {
+          id: string;
+          estimate_id: string;
+          account_id: string;
+          description: string;
+          quantity: number;
+          unit_price_minor: number;
+          amount_minor: number;
+          position: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          estimate_id: string;
+          account_id: string;
+          description: string;
+          quantity?: number;
+          unit_price_minor: number;
+          amount_minor: number;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          estimate_id?: string;
+          account_id?: string;
+          description?: string;
+          quantity?: number;
+          unit_price_minor?: number;
+          amount_minor?: number;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
@@ -602,6 +723,14 @@ export type ProjectAssignment = Database['public']['Tables']['project_assignment
 export type UserAvailability = Database['public']['Tables']['user_availability']['Row'];
 export type TimeEntry = Database['public']['Tables']['time_entries']['Row'];
 export type TaskWeekAllocation = Database['public']['Tables']['task_week_allocations']['Row'];
+
+export type EstimateStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+export type Estimate = Database['public']['Tables']['estimates']['Row'];
+export type EstimateInsert = Database['public']['Tables']['estimates']['Insert'];
+export type EstimateUpdate = Database['public']['Tables']['estimates']['Update'];
+export type EstimateLineItem = Database['public']['Tables']['estimate_line_items']['Row'];
+export type EstimateLineItemInsert = Database['public']['Tables']['estimate_line_items']['Insert'];
+export type EstimateLineItemUpdate = Database['public']['Tables']['estimate_line_items']['Update'];
 
 /**
  * A Supabase client instance (browser or server).
